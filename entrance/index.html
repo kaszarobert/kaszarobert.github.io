@@ -4,40 +4,91 @@
 		<meta charset="UTF-8">
 		<title>QR Entrance System Terminal</title>
 		<script type="text/javascript" src="../common/js/lib/jquery-3.1.1.min.js"></script>
+		<script type="text/javascript" src="../common/js/lib/notify.min.js"></script>
         <script type="text/javascript" src="../common/js/general.js"></script>
-        <script type="text/javascript" src="js/additional.js"></script>
-        <!-- <script type="text/javascript" src="js/index.js"></script> -->
+        <script type="text/javascript" src="../common/js/lib/instascan.min.js"></script>
+        <!-- <script type="text/javascript" src="js/additional.js"></script> -->
+        <script type="text/javascript" src="js/index.js"></script>
         <script type="text/javascript" src="../common/js/lib/bootstrap.js"></script>
         <link rel="stylesheet" href="../common/css/bootstrap.css">
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 	</head>
 	<body>
 
-		<div id="terminalLoginScreen">
-			<h1>Terminal Login</h1>
-			<form>
-				<p>The terminal's ref.num. is: <input class="target" type="text" id="refnum" value="BEJARAT1"><br>
-				Admin or Employee QR code: <input class="target" type="text" id="qr" value="a1"><br>
-				Password: <input class="target"type="password" id="pass" value="0"><br>
-				<input type="submit" id="loginBtn" value="Login"></p>
-			</form>
-		</div>
+		<div id="terminalWrapper">
+			<div id="terminalLoginScreen">
+				<h1>Terminal Login</h1>
+				<span id="loginStatusMessage"></span>
+				<form>
+					<p>The terminal's ref.num. is: <input class="target" type="text" id="loginRefnum" value="BEJARAT1"><br>
+					Admin or Employee QR code: <input class="target" type="text" id="loginQr" value="a1"><br>
+					Password: <input class="target"type="password" id="loginPass" value="0"><br>
+					<input type="submit" id="loginBtn" value="Login"></p>
+				</form>
+			</div>
 
-		<div id="terminalLogoutScreen">
-		</div>
+			<div id="terminalLogoutScreen">
+			</div>
 
-		<div id="terminalMenuScreen">
-		</div>
+			<div id="terminalMenuScreen">
+				<h1>QR beléptető rendszer</h1>
 
-		<div id="terminalEnterScreen">
-		</div>
+				<input type="submit" id="enterBtn" value="Beléptetés">
+				<input type="submit" id="exitBtn" value="kiléptetés">
+				<input type="submit" id="szolgBtn" value="Szolgáltalás igénybevétele">
+				<input type="submit" id="logoutBtn" value="Kijelentkezés">
+			</div>
 
-		<div id="terminalExitScreen">
-		</div>
-		
-		<div id="terminalPaidServicesScreen">
-		</div>
-		
-		<div id="terminalUseServiceScreen">
+			<div id="terminalEnterScreen">
+				<h1>Beléptetés</h1>
+
+				<form>
+					<p><input type="submit" class="backToMenu" value="Back to the menu">
+					Password: <input class="target" type="password" id="enterPass" value="0"><br>
+					<input type="submit" id="enterSubmit" value="Enter"></p>
+				</form>
+			</div>
+
+			<div id="terminalExitScreen">
+			</div>
+			
+			<div id="terminalPaidServicesScreen">
+				<input type="submit" class="backToMenu" value="Back to the menu">
+
+				<table id="servicelist">
+					<tr class="clicker" id="s00">
+						<td colspan="2">
+							Szolgáltalás1
+						</td>
+					</tr>
+					<tr id="p00">
+						<td>
+							Megnevezés1
+						</td>
+						<td>
+							100
+						</td>
+					</tr>
+				</table>
+			</div>
+			
+			<div id="terminalUseServiceScreen">
+				<h1>Use service</h1>
+
+				<form>
+					<p><input type="submit" class="backToMenu" value="Back to the menu">
+					Password: <input class="target" type="password" id="serviceUsePass" value="0"><br>
+					<input type="submit" id="serviceUseSubmit" value="USE SERVICE"></p>
+				</form>
+			</div>
+			
+			<div id="qrScanPreview">
+				<input type="submit" class="backToMenu" value="Back to the menu">
+				<video id="preview"></video>
+			</div>
+			
+			<div id="pleaseWaitScreen">
+				<p>Processing request. Please wait...</p>
+			</div>
 		</div>
 </html>
