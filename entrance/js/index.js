@@ -1,7 +1,7 @@
 var scanner;							// for Instascan.Scanner object. Necessary for QR detecting
 var activeCamera;						// the selected Camera Module or Webcam where we use its picture for QR detecting algorythms
 var isQrCheckingActive = false;			// calling scanner.start (or stop) more than 3x continously when its already started, causes errors. We have to store the current state - whether we are using the camera or not.
-var SERVER = "https://ec2-52-15-186-182.us-east-2.compute.amazonaws.com:8443/";	// server for the API calls
+var SERVER = "https://ec2-52-15-186-182.us-east-2.compute.amazonaws.com:8443";	// server for the API calls
 var screens = {							// store which screens can be used in the webapp
 		  LOGIN: 1,
 		  LOGOUT: 2,
