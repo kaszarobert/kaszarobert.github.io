@@ -1,7 +1,7 @@
 var scanner;							// for Instascan.Scanner object. Necessary for QR detecting
 var activeCamera;						// the selected Camera Module or Webcam where we use its picture for QR detecting algorythms
 var isQrCheckingActive = false;			// calling scanner.start (or stop) more than 3x continously when its already started, causes errors. We have to store the current state - whether we are using the camera or not.
-var SERVER = "http://ec2-13-59-110-85.us-east-2.compute.amazonaws.com:8080/";	// server for the API calls
+var SERVER = "https://ec2-52-15-186-182.us-east-2.compute.amazonaws.com:8443/";	// server for the API calls
 var screens = {							// store which screens can be used in the webapp
 		  LOGIN: 1,
 		  LOGOUT: 2,
@@ -406,7 +406,7 @@ function app_services() {
 						+ serviceList[i].title + "</td></tr>";
 						
 					for (var j = 0; j < serviceList[i].prices.length; j++) {
-						currentPriceRow = "<tr id=\"p" + serviceList[i].prices[j].id
+						currentPriceRow = "<tr class=\"bg-primary\" id=\"p" + serviceList[i].prices[j].id
 							+ "\" style=\"display: none;\"><td>" + serviceList[i].prices[j].description + 
 							"</td><td>" + (-serviceList[i].prices[j].amount) + "</td></tr>";
 
@@ -445,9 +445,9 @@ function app_useService(qr, pass) {
     		},
     		function(data, textStatus, xhr) {
     	
-				var message = "Using service " + selectedPrice.description
-					+ " for " + xhr.responseJSON.accountData.firstName
-					+ " " + xhr.responseJSON.accountData.lastName
+				var message = "Using service " +xhr.responseJSON.priceDescription
+					+ " for " + xhr.responseJSON.firstName
+					+ " " + xhr.responseJSON.lastName
 					+ " is successful!";
 				showNotification(message, notificationStyles.SUCCESS);
 

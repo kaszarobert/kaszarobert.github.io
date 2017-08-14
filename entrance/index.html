@@ -7,10 +7,9 @@
 		<script type="text/javascript" src="../common/js/lib/notify.min.js"></script>
         <script type="text/javascript" src="../common/js/general.js"></script>
         <script type="text/javascript" src="../common/js/lib/instascan.min.js"></script>
-        <!-- <script type="text/javascript" src="js/additional.js"></script> -->
-        <script type="text/javascript" src="js/index.js"></script>
-        <script type="text/javascript" src="../common/js/lib/bootstrap.js"></script>
-        <link rel="stylesheet" href="../common/css/bootstrap.css">
+        <script type="text/javascript" src="../common/js/lib/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="../common/css/bootstrap.min.css">
+		<script type="text/javascript" src="js/index.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 	</head>
 	<body>
@@ -43,7 +42,7 @@
 				<h1>Beléptetés</h1>
 
 				<form>
-					<p><input type="submit" class="backToMenu" value="Back to the menu">
+					<p><input type="submit" class="backToMenu" value="Back to the menu"><br>
 					Password: <input class="target" type="password" id="enterPass" value="0"><br>
 					<input type="submit" id="enterSubmit" value="Enter"></p>
 				</form>
@@ -53,22 +52,12 @@
 			</div>
 			
 			<div id="terminalPaidServicesScreen">
-				<input type="submit" class="backToMenu" value="Back to the menu">
+				<input type="submit" class="backToMenu" value="Back to the menu"><br>
 
-				<table id="servicelist">
-					<tr class="clicker" id="s00">
-						<td colspan="2">
-							Szolgáltalás1
-						</td>
-					</tr>
-					<tr id="p00">
-						<td>
-							Megnevezés1
-						</td>
-						<td>
-							100
-						</td>
-					</tr>
+				<table id="servicelist" class="table table-bordered table-inverse">
+					<tbody>
+					<tr class="clicker" id="s00"><td colspan="2">Szolgáltalás1</td></tr><tr id="p00"><td>Megnevezés1</td><td>100</td></tr>
+					</tbody>
 				</table>
 			</div>
 			
@@ -76,14 +65,14 @@
 				<h1>Use service</h1>
 
 				<form>
-					<p><input type="submit" class="backToMenu" value="Back to the menu">
+					<p><input type="submit" class="backToMenu" value="Back to the menu"><br>
 					Password: <input class="target" type="password" id="serviceUsePass" value="0"><br>
 					<input type="submit" id="serviceUseSubmit" value="USE SERVICE"></p>
 				</form>
 			</div>
 			
 			<div id="qrScanPreview">
-				<input type="submit" class="backToMenu" value="Back to the menu">
+				<input type="submit" class="backToMenu" value="Back to the menu"><br>
 				<video id="preview"></video>
 			</div>
 			
