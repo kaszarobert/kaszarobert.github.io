@@ -11,69 +11,73 @@
         <script type="text/javascript" src="../common/js/lib/bootstrap.min.js"></script>
         <link rel="stylesheet" href="../common/css/bootstrap.min.css">
 		<script type="text/javascript" src="js/index.js"></script>
+		<style>body { padding:20px;margin-top:10px; } p { font-size: 15pt; }</style>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 	</head>
 	<body>
 
 		<div id="terminalWrapper">
+			<div id="terminalMenuBackButton">
+				<input type="button" id="backToMenu" class="btn btn-default" value="Back to the menu"><hr>
+			</div>
+			
 			<div id="terminalLoginScreen">
 				<h1>Terminal Login</h1>
-				<span id="loginStatusMessage"></span>
 				<form>
-					<p>The terminal's ref.num. is: <input class="target" type="text" id="loginRefnum" value="BEJARAT1"><br>
-					Admin or Employee QR code: <input class="target" type="text" id="loginQr" value="a1"><br>
-					Password: <input class="target"type="password" id="loginPass" value="0"><br>
-					<input type="submit" id="loginBtn" value="Login"></p>
+					<p>The terminal's ref.num. is: 
+						<input class="form-control" type="text" id="loginRefnum" value="BEJARAT1"><br>
+					Admin or Employee QR code: 
+						<input class="form-control" type="text" id="loginQr" value="a1"><br>
+					Password: 
+						<input class="form-control" type="password" id="loginPass" value="0"><br>
+					<input type="submit" id="loginBtn" class="btn btn-primary" value="Login"></p>
 				</form>
 			</div>
 
-			<div id="terminalLogoutScreen">
-			</div>
-
 			<div id="terminalMenuScreen">
-				<h1>QR beléptető rendszer</h1>
-
-				<input type="submit" id="enterBtn" value="Beléptetés">
-				<input type="submit" id="exitBtn" value="kiléptetés">
-				<input type="submit" id="szolgBtn" value="Szolgáltalás igénybevétele">
-				<input type="submit" id="logoutBtn" value="Kijelentkezés">
+				<h1>QR Entrance System - Terminal</h1>
+				<p>Choose a task to perform:</p>
+				<input type="button" class="btn btn-default btn-block" id="enterBtn" value="Entering">
+				<input type="button" class="btn btn-default btn-block" id="exitBtn" value="Exiting">
+				<input type="button" class="btn btn-default btn-block" id="szolgBtn" value="Using a service">
+				<input type="button" class="btn btn-default btn-block" id="logoutBtn" value="Log out this terminal">
 			</div>
 
 			<div id="terminalEnterScreen">
-				<h1>Beléptetés</h1>
-
+				<h1>Entering</h1>
+				<p>Scan your QR code:</p>
 				<form>
-					<p><input type="submit" class="backToMenu" value="Back to the menu"><br>
-					Password: <input class="target" type="password" id="enterPass" value="0"><br>
-					<input type="submit" id="enterSubmit" value="Enter"></p>
+					<p>Your password: <input class="form-control" type="password" id="enterPass" value="0"><br>
+					<input type="submit" id="enterSubmit" class="btn btn-primary" value="Enter"></p>
 				</form>
 			</div>
 
 			<div id="terminalExitScreen">
 			</div>
 			
-			<div id="terminalPaidServicesScreen">
-				<input type="submit" class="backToMenu" value="Back to the menu"><br>
+			<div id="terminalPaidServicesScreen">				
+				<h1>Using a service</h1>
+				<p>Choose a service to use from the list:</p>				
 
 				<table id="servicelist" class="table table-bordered table-inverse">
 					<tbody>
-					<tr class="clicker" id="s00"><td colspan="2">Szolgáltalás1</td></tr><tr id="p00"><td>Megnevezés1</td><td>100</td></tr>
+					<!-- <tr class="clicker" id="s00"><td colspan="2">Szolgáltalás1</td></tr><tr id="p00"><td>Megnevezés1</td><td>100</td></tr> -->
 					</tbody>
 				</table>
 			</div>
 			
 			<div id="terminalUseServiceScreen">
-				<h1>Use service</h1>
+				<h1>Using a service</h1>
+				<p>Please enter your password to pay for the service.</p>	
 
 				<form>
-					<p><input type="submit" class="backToMenu" value="Back to the menu"><br>
-					Password: <input class="target" type="password" id="serviceUsePass" value="0"><br>
-					<input type="submit" id="serviceUseSubmit" value="USE SERVICE"></p>
+					<input class="form-control" type="password" id="serviceUsePass" value="0"><br>
+					<input type="submit" id="serviceUseSubmit" class="btn btn-primary" value="USE SERVICE">
 				</form>
 			</div>
 			
 			<div id="qrScanPreview">
-				<input type="submit" class="backToMenu" value="Back to the menu"><br>
+				<p>Please scan your QR code here:</p>
 				<video id="preview"></video>
 			</div>
 			

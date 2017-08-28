@@ -1,7 +1,7 @@
 var scanner;							// for Instascan.Scanner object. Necessary for QR detecting
 var activeCamera;						// the selected Camera Module or Webcam where we use its picture for QR detecting algorythms
 var isQrCheckingActive = false;			// calling scanner.start (or stop) more than 3x continously when its already started, causes errors. We have to store the current state - whether we are using the camera or not.
-var SERVER = "https://qrsys.ddns.net:8443";	// server for the API calls
+var SERVER = "https://qrsys.ddns.net";	// server for the API calls: https://qrsys.ddns.net
 var screens = {							// store which screens can be used in the webapp
 		  LOGIN: 1,
 		  LOGOUT: 2,
@@ -35,9 +35,15 @@ $(document).ready(function() {
  * Hides all div elements with id other than the given parameter. 
  * @param {*} divId 
  */
-function hideAllExcept(divId) {	
+function hideAllExcept(divId, menuVisible) {	
 	$('#terminalWrapper div').not("#" + divId).hide();
 	$("#" + divId).show();
+
+	if (menuVisible) {
+		$("#terminalMenuBackButton").show();
+	} else {
+		$("#terminalMenuBackButton").hide();
+	}
 }
 
 /**
@@ -79,7 +85,7 @@ function assignAction() {
 		app_useService(readQrData, $("#serviceUsePass").val());
 	});
 	
-	$(".backToMenu").click(function(e) {
+	$("#backToMenu").click(function(e) {
         e.preventDefault();
 		changeScreenMenu();
 	});
@@ -170,7 +176,7 @@ function stopQrScanner() {
  */
 
 function changeScreenLogin() {
-	hideAllExcept("terminalLoginScreen");
+	hideAllExcept("terminalLoginScreen", false);
 	currentScreen = screens.LOGIN;
 	stopQrScanner();
 	selectedPrice = {};
@@ -178,7 +184,7 @@ function changeScreenLogin() {
 
 function changeScreenMenu() {
 	stopQrScanner();
-	hideAllExcept("terminalMenuScreen");
+	hideAllExcept("terminalMenuScreen", false);
 	currentScreen = screens.MAINMENU;
 	readQrData = "";
 	selectedPrice = {};
@@ -190,27 +196,27 @@ function changeScreenLogout() {
 
 function changeScreenEnter() {
 	startQrScanner();
-	hideAllExcept("qrScanPreview");
+	hideAllExcept("qrScanPreview", true);
 	currentScreen = screens.SCANQR_ENTER;
 	readQrData = "";
 }
 
 function changeScreenEnterPin() {
 	stopQrScanner();
-	hideAllExcept("terminalEnterScreen");
+	hideAllExcept("terminalEnterScreen", true);
 	currentScreen = screens.SCANQR_ENTER_PIN;
 }
 
 function changeScreenExit() {
 	startQrScanner();
-	hideAllExcept("qrScanPreview");
+	hideAllExcept("qrScanPreview", true);
 	currentScreen = screens.SCANQR_EXIT;
 	readQrData = "";
 }
 
 function changeScreenServicesList() {
 	stopQrScanner();
-	hideAllExcept("terminalPaidServicesScreen");
+	hideAllExcept("terminalPaidServicesScreen", true);
 	currentScreen = screens.LISTSERVICES;
 	selectedPrice = {};
 	app_services();
@@ -218,14 +224,14 @@ function changeScreenServicesList() {
 
 function changeScreenServicesScanForQr() {
 	startQrScanner();
-	hideAllExcept("qrScanPreview");
+	hideAllExcept("qrScanPreview", true);
 	currentScreen = screens.SCANQR_USESERVICE;
 	readQrData = "";
 }
 
 function changeScreenServicesEnterPin() {
 	stopQrScanner();
-	hideAllExcept("terminalUseServiceScreen");
+	hideAllExcept("terminalUseServiceScreen", true);
 	currentScreen = screens.SCANQR_USESERVICE_PIN;
 }
 
