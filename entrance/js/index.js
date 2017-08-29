@@ -260,9 +260,7 @@ function app_login(qr, pass, ref) {
     sendAjax("POST", 
     		url, 
     		JSON.stringify(req), 
-    		function(xhr) {
-    			xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
-    		},
+    		null,
     		function(data, textStatus, xhr) {
    				localStorage.setItem("Authorization", xhr.getResponseHeader("Authorization"));
    				localStorage.setItem("terminalReferenceNumber", xhr.responseJSON.terminal.referenceNumber);
@@ -294,7 +292,7 @@ function app_logout(){
     		url, 
     		JSON.stringify(req), 
     		function(xhr) {
-    			xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
+    			//xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
     			xhr.setRequestHeader('Authorization', localStorage.getItem("Authorization"));
     		},
     		function(data, textStatus, xhr) {
@@ -302,7 +300,8 @@ function app_logout(){
 					+ " logged out successfully";
 				showNotification(message, notificationStyles.SUCCESS);
 
-    			localStorage.removeItem("Authorization");
+				localStorage.removeItem("Authorization");
+				localStorage.removeItem("terminalReferenceNumber");
 				stopBackGroundReAuthorizing();
 		    }, function(xhr) {
 		    	var message = xhr.responseJSON.errorMessage;
@@ -328,7 +327,7 @@ function app_sendEnterRequest(qr, pass) {
     		url, 
     		JSON.stringify(req),
     		function(xhr) {
-    			xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
+    			//xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
     			xhr.setRequestHeader('Authorization', localStorage.getItem("Authorization"));
     		},
     		function(data, textStatus, xhr) {
@@ -367,7 +366,7 @@ function app_exit(qr) {
     		url, 
     		JSON.stringify(req), 
     		function(xhr) {
-    			xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
+    			//xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
     			xhr.setRequestHeader('Authorization', localStorage.getItem("Authorization"));
     		},
     		function(data, textStatus, xhr) {
@@ -396,7 +395,7 @@ function app_services() {
     		url, 
     		null,     		 
     		function(xhr) {
-    			xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
+    			//xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
     			xhr.setRequestHeader('Authorization', localStorage.getItem("Authorization"));
     		},
     		function(data, textStatus, xhr) {
@@ -446,7 +445,7 @@ function app_useService(qr, pass) {
     		url, 
     		JSON.stringify(req), 
     		function(xhr) {
-    			xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
+    			//xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
     			xhr.setRequestHeader('Authorization', localStorage.getItem("Authorization"));
     		},
     		function(data, textStatus, xhr) {
@@ -516,7 +515,7 @@ function reAuthorize(){
     		url, 
     		JSON.stringify(req), 
     		function(xhr) {
-    			xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
+    			//xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
     			xhr.setRequestHeader('Authorization', localStorage.getItem("Authorization"));
     		},
 			null, 

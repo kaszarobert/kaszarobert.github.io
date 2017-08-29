@@ -29,12 +29,6 @@ function sendAjax(method, url, data, beforeSendCallback, successCallback, errorC
 	});
 }
 
-/*
-var beforeSendCallback = function(xhr){
-	var headers = {};
-	headers["Content-type"] = "application/json; charset=UTF-8";
-}
-*/
 function getErrorMsg(xhr) {
 	var errorMsg;			
 	if (xhr.status == 0) {
