@@ -118,7 +118,7 @@ function initStyle() {
 		// and we're saving that
 		setStoredData("DARKTHEME", darkMode);
 
-	} else if (useDarkTheme == "true" || useDarkTheme) {
+	} else if (useDarkTheme == "true") {
 		// then we must use dark theme
 		$("#light").detach();
 		darkMode = true;
