@@ -3,25 +3,66 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>QR Entrance System Terminal</title>
+		<link rel="stylesheet" href="../common/css/bootstrap.min.css.bak">
+		<style id="basic">
+			body { 
+				padding:20px;
+				margin-top:10px; 
+			} 
+			p { 
+				font-size: 15pt; 
+			}
+			#setOtherTheme{
+				position:absolute;
+				top:10px;
+				right: 10px;
+ 			}
+			span.lightbulb {
+				background: url(svg/iconmonstr-light-bulb-12.svg) no-repeat center;
+				background-size: contain;
+				cursor: pointer;
+				display: inline-block;
+				height: 20px;
+				width: 20px;
+			}
+		</style>
+		<style id="light">
+				body {
+					color: black;
+					background-color: white;
+				}
+			</style>
+			<style id="dark">
+				body {
+					color: white;
+					background-color: black;
+				}
+			</style>
 		<script type="text/javascript" src="../common/js/lib/jquery-3.1.1.min.js"></script>
 		<script type="text/javascript" src="../common/js/lib/notify.min.js"></script>
         <script type="text/javascript" src="../common/js/general.js"></script>
         <script type="text/javascript" src="../common/js/lib/instascan.min.js"></script>
         <script type="text/javascript" src="../common/js/lib/tether.min.js"></script>
         <script type="text/javascript" src="../common/js/lib/bootstrap.min.js"></script>
-        <link rel="stylesheet" href="../common/css/bootstrap.min.css">
 		<script type="text/javascript" src="js/index.js"></script>
-		<style>body { padding:20px;margin-top:10px; } p { font-size: 15pt; }</style>
+		<script type="text/javascript" src="../common/js/lib/jwt-decode.min.js"></script>
+		
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 	</head>
 	<body>
 
 		<div id="terminalWrapper">
-			<div id="terminalMenuBackButton">
+			<div id="themeChoosing">
+				<button type="button" id="setOtherTheme" class="btn btn-default" title="Switch Between Light and Dark Mode">
+						<span class="lightbulb"></span>
+				</button>
+			</div>
+
+			<div id="terminalMenuBackButton" style="display: none;">
 				<input type="button" id="backToMenu" class="btn btn-default" value="Back to the menu"><hr>
 			</div>
 			
-			<div id="terminalLoginScreen">
+			<div id="terminalLoginScreen" style="display: none;">
 				<h1>Terminal Login</h1>
 				<form>
 					<p>The terminal's ref.num. is: 
@@ -34,7 +75,7 @@
 				</form>
 			</div>
 
-			<div id="terminalMenuScreen">
+			<div id="terminalMenuScreen" style="display: none;">
 				<h1>QR Entrance System - Terminal</h1>
 				<p>Choose a task to perform:</p>
 				<input type="button" class="btn btn-default btn-block" id="enterBtn" value="Entering">
@@ -43,7 +84,7 @@
 				<input type="button" class="btn btn-default btn-block" id="logoutBtn" value="Log out this terminal">
 			</div>
 
-			<div id="terminalEnterScreen">
+			<div id="terminalEnterScreen" style="display: none;">
 				<h1>Entering</h1>
 				<p>Scan your QR code:</p>
 				<form>
@@ -52,21 +93,21 @@
 				</form>
 			</div>
 
-			<div id="terminalExitScreen">
+			<div id="terminalExitScreen" style="display: none;">
 			</div>
 			
-			<div id="terminalPaidServicesScreen">				
+			<div id="terminalPaidServicesScreen" style="display: none;">				
 				<h1>Using a service</h1>
 				<p>Choose a service to use from the list:</p>				
 
-				<table id="servicelist" class="table table-bordered table-inverse">
+				<table id="servicelist" class="table table-bordered table-inverse table-hover">
 					<tbody>
 					<!-- <tr class="clicker" id="s00"><td colspan="2">Szolgáltalás1</td></tr><tr id="p00"><td>Megnevezés1</td><td>100</td></tr> -->
 					</tbody>
 				</table>
 			</div>
 			
-			<div id="terminalUseServiceScreen">
+			<div id="terminalUseServiceScreen" style="display: none;">
 				<h1>Using a service</h1>
 				<p>Please enter your password to pay for the service.</p>	
 
@@ -76,12 +117,12 @@
 				</form>
 			</div>
 			
-			<div id="qrScanPreview">
+			<div id="qrScanPreview" style="display: none;">
 				<p>Please scan your QR code here:</p>
 				<video id="preview"></video>
 			</div>
 			
-			<div id="pleaseWaitScreen">
+			<div id="pleaseWaitScreen" style="display: none;">
 				<p>Processing request. Please wait...</p>
 			</div>
 		</div>

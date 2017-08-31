@@ -24,12 +24,127 @@ var selectedPrice = {};					// user selected this price to pay for in services l
 var currentScreen;						// the current view in the application
 var authorizingInterval;				// to set an interval with REAUTHORIZE_TIME - for getting new tokens in background
 var REAUTHORIZE_TIME = 1000 * 60 * 59;	// 59 minutes, and we must get a new token, because it'll expire
+var darkMode = false;					// store that which theme is being used, so we can easily switch with a function
+var styles;								// possible styles = light and dark
 
 $(document).ready(function() {
+	initStyle();
 	loadQrScanner();
-	changeScreenLogin();
+	
+	// temporary: we dont store tokens for automatic logins
+	// changeScreenLogin();
+
+	tryToAuthenticateAutomatically();
 	assignAction();
 });
+
+function tryToAuthenticateAutomatically() {
+	var terminalReferenceNumber = getTerminalRefNumberFromToken();
+
+	if (terminalReferenceNumber == "") {
+		// if there is no token stored - simply just show the login page 
+		removeStoredData();
+		changeScreenLogin();
+	} else {
+		// trying to reauthenticate automatically with that token and terminal number
+		// check if this token is valid?
+		var url = SERVER + "/qrsys/rest/rpi/reauthorize";
+		var req = {};
+		req.terminalReferenceNumber = terminalReferenceNumber;
+		
+		sendAjax("POST", 
+				url, 
+				JSON.stringify(req), 
+				function(xhr) {
+					xhr.setRequestHeader('Authorization', getStoredData("Authorization"));
+				},
+				null, 
+				function(xhr) {
+					if (xhr.status == 200) {
+						var token = xhr.getResponseHeader("Authorization");
+						if (token) {
+							setStoredData("Authorization", token);
+						}
+						// if it is valid, user can continue working. No need to log in again
+						startBackGroundReAuthorizing();
+						changeScreenMenu();
+		
+					} else {
+						// token is not valid - remove useless entries, and serve the login page to the user
+						removeStoredData();
+						changeScreenLogin();
+					}
+				});
+		}
+}
+
+function getTerminalRefNumberFromToken() {
+	var token = getStoredData("Authorization");
+	
+	// if there is no token stored
+	if (token == null || token == "") {
+		return "";
+
+	} else {
+		// trying to decode that token
+		// {iss: "qrsys", aud: "BEJARAT1", exp: 1504202239, iat: 1504198639}
+		try {
+			var decoded = jwt_decode(token);
+		} catch (e) {
+			return "";
+		}
+
+		// return the terminal's number
+		return decoded.aud;
+	}
+}
+
+function initStyle() {
+	styles = {
+        light: $("#light"),
+        dark:  $("#dark")
+	  };
+	  
+	// temporary solution: set to white
+	//$("#dark").detach(); darkMode = false;
+
+	// check if the used theme is saved in the browser
+	var useDarkTheme = getStoredData("DARKTHEME");
+
+	if (useDarkTheme == "") {
+		// nothing has been set, we use light theme
+		$("#dark").detach();
+		darkMode = false;
+		// and we're saving that
+		setStoredData("DARKTHEME", darkMode);
+
+	} else if (useDarkTheme == "true" || useDarkTheme) {
+		// then we must use dark theme
+		$("#light").detach();
+		darkMode = true;
+
+	} else {
+		// then we must use light theme
+		$("#dark").detach();
+		darkMode = false;
+	}
+	
+}
+
+function switchToTheOtherStyle() {
+	if (darkMode) {
+		// then switch to Light Mode
+		$("#dark").detach();
+		styles.light.appendTo("head");
+	} else {
+		// switch to Dark Mode
+		$("#light").detach();
+		styles.dark.appendTo("head");
+	}
+
+	darkMode = !darkMode;
+	setStoredData("DARKTHEME", darkMode);
+}
 
 /**
  * Hides all div elements with id other than the given parameter. 
@@ -38,6 +153,7 @@ $(document).ready(function() {
 function hideAllExcept(divId, menuVisible) {	
 	$('#terminalWrapper div').not("#" + divId).hide();
 	$("#" + divId).show();
+	$("#themeChoosing").show();
 
 	if (menuVisible) {
 		$("#terminalMenuBackButton").show();
@@ -88,6 +204,11 @@ function assignAction() {
 	$("#backToMenu").click(function(e) {
         e.preventDefault();
 		changeScreenMenu();
+	});
+
+	$("#setOtherTheme").click(function(e) {
+		e.preventDefault();
+		switchToTheOtherStyle();
 	});
 }
 
@@ -262,9 +383,7 @@ function app_login(qr, pass, ref) {
     		JSON.stringify(req), 
     		null,
     		function(data, textStatus, xhr) {
-   				localStorage.setItem("Authorization", xhr.getResponseHeader("Authorization"));
-   				localStorage.setItem("terminalReferenceNumber", xhr.responseJSON.terminal.referenceNumber);
-				
+				setStoredData("Authorization", xhr.getResponseHeader("Authorization"));				
 				var message = "Terminal " + xhr.responseJSON.terminal.referenceNumber
 					+ " logged in with account " + xhr.responseJSON.accountData.firstName
 					+ " " + xhr.responseJSON.accountData.lastName;
@@ -286,29 +405,34 @@ function app_logout(){
 	var url = SERVER + "/qrsys/rest/rpi/terminallogout";
 	
     var req = {};
-    req.terminalReferenceNumber = localStorage.getItem("terminalReferenceNumber");
+    req.terminalReferenceNumber = getTerminalRefNumberFromToken();
 
-    sendAjax("POST", 
-    		url, 
-    		JSON.stringify(req), 
-    		function(xhr) {
-    			//xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
-    			xhr.setRequestHeader('Authorization', localStorage.getItem("Authorization"));
-    		},
-    		function(data, textStatus, xhr) {
-				var message = "Terminal " + xhr.responseJSON.referenceNumber
-					+ " logged out successfully";
-				showNotification(message, notificationStyles.SUCCESS);
+	if (req.terminalReferenceNumber == "") {
+		changeScreenLogin();
+		removeStoredData();
+	} else {
+		sendAjax("POST", 
+				url, 
+				JSON.stringify(req), 
+				function(xhr) {
+					xhr.setRequestHeader('Authorization', getStoredData("Authorization"));
+				},
+				function(data, textStatus, xhr) {
+					var message = "Terminal " + xhr.responseJSON.referenceNumber
+						+ " logged out successfully";
+					showNotification(message, notificationStyles.SUCCESS);
 
-				localStorage.removeItem("Authorization");
-				localStorage.removeItem("terminalReferenceNumber");
-				stopBackGroundReAuthorizing();
-		    }, function(xhr) {
-		    	var message = xhr.responseJSON.errorMessage;
-				showNotification(message, notificationStyles.ERROR);	
-		    });
+					removeStoredData();
+					stopBackGroundReAuthorizing();
+				}, function(xhr) {
+					var message = xhr.responseJSON.errorMessage;
+					showNotification(message, notificationStyles.ERROR);	
+				});
 
-	changeScreenLogout();
+		changeScreenLogout();
+	}
+
+	
 }
 
 /**
@@ -321,14 +445,17 @@ function app_sendEnterRequest(qr, pass) {
     var req = {};
     req.qrCode = qr;
     req.pin = pass;
-    req.terminalReferenceNumber = localStorage.getItem("terminalReferenceNumber");
-    
-    sendAjax("POST", 
+    req.terminalReferenceNumber = getTerminalRefNumberFromToken();
+	
+	if (req.terminalReferenceNumber == "") {
+		changeScreenLogin();
+		removeStoredData();
+	} else {
+		sendAjax("POST", 
     		url, 
     		JSON.stringify(req),
     		function(xhr) {
-    			//xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
-    			xhr.setRequestHeader('Authorization', localStorage.getItem("Authorization"));
+    			xhr.setRequestHeader('Authorization', getStoredData("Authorization"));
     		},
     		function(data, textStatus, xhr) {
 				var message = xhr.responseJSON.accountData.firstName
@@ -336,7 +463,7 @@ function app_sendEnterRequest(qr, pass) {
 					+ " entered successfully!";
 				showNotification(message, notificationStyles.SUCCESS);
 
-				localStorage.setItem("Authorization", xhr.getResponseHeader("Authorization"));
+				setStoredData("Authorization", xhr.getResponseHeader("Authorization"));
 				changeScreenEnter();
 
 		    }, function(xhr) {
@@ -349,6 +476,8 @@ function app_sendEnterRequest(qr, pass) {
 		    		changeScreenEnter();
 		    	}	
 		    });	
+	}
+    
 }
 
 /**
@@ -360,14 +489,17 @@ function app_exit(qr) {
 
     var req = {};
     req.qrCode = qr;
-    req.terminalReferenceNumber = localStorage.getItem("terminalReferenceNumber");
-    
-    sendAjax("POST", 
+    req.terminalReferenceNumber = getTerminalRefNumberFromToken();
+	
+	if (req.terminalReferenceNumber == "") {
+		changeScreenLogin();
+		removeStoredData();		
+	} else {
+		sendAjax("POST", 
     		url, 
     		JSON.stringify(req), 
     		function(xhr) {
-    			//xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
-    			xhr.setRequestHeader('Authorization', localStorage.getItem("Authorization"));
+    			xhr.setRequestHeader('Authorization', getStoredData("Authorization"));
     		},
     		function(data, textStatus, xhr) {
 				var message = xhr.responseJSON.accountData.firstName
@@ -375,7 +507,7 @@ function app_exit(qr) {
 					+ " exited successfully!";
 				showNotification(message, notificationStyles.SUCCESS);
 
-				localStorage.setItem("Authorization", xhr.getResponseHeader("Authorization"));
+				setStoredData("Authorization", xhr.getResponseHeader("Authorization"));
 				changeScreenExit();
 		    	
 		    }, function(xhr) {
@@ -383,26 +515,32 @@ function app_exit(qr) {
 				showNotification(message, notificationStyles.ERROR);
 		    	changeScreenExit();
 		    });
+	}
+
 }
 
 /**
  * Listing available paid services
  */
 function app_services() {
+	$('#servicelist').empty();
 	var url = SERVER + "/qrsys/rest/rpi/paidservices";
+	var token = getStoredData("Authorization");
 	
-    sendAjax("GET", 
-    		url, 
-    		null,     		 
-    		function(xhr) {
-    			//xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
-    			xhr.setRequestHeader('Authorization', localStorage.getItem("Authorization"));
-    		},
-    		function(data, textStatus, xhr) {
-				localStorage.setItem("Authorization", xhr.getResponseHeader("Authorization"));
+	if (token == "" || token == null) {
+		changeScreenLogin();
+		removeStoredData();	
+	} else {
+		sendAjax("GET", 
+			url, 
+			null,     		 
+			function(xhr) {
+				xhr.setRequestHeader('Authorization', getStoredData("Authorization"));
+			},
+			function(data, textStatus, xhr) {
+				setStoredData("Authorization", xhr.getResponseHeader("Authorization"));
 				var serviceList = xhr.responseJSON;
-
-				$('#servicelist').empty();
+				
 				// load content to the table
 				for (var i = 0; i < serviceList.length; i++) {
 					
@@ -417,17 +555,18 @@ function app_services() {
 
 						newServiceWithPrices += currentPriceRow;
 					}
-					$('#servicelist').append(newServiceWithPrices);
+					$('#servicelist').append("<tbody>" + newServiceWithPrices + "</tbody>");
 				}
 
 				// assign clickers for making
 				assignServicesListClickers();
 				
-		        	
-		    }, function(xhr) {
+					
+			}, function(xhr) {
 				var message = xhr.responseJSON.errorMessage;
 				showNotification(message, notificationStyles.ERROR);
-		    });
+			});
+	}
 }
 
 /**
@@ -439,31 +578,35 @@ function app_useService(qr, pass) {
     req.qrCode = qr;
     req.pin = pass;
     req.priceId = selectedPrice.id;
-	req.terminalReferenceNumber = localStorage.getItem("terminalReferenceNumber");
-    
-    sendAjax("POST", 
-    		url, 
-    		JSON.stringify(req), 
-    		function(xhr) {
-    			//xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
-    			xhr.setRequestHeader('Authorization', localStorage.getItem("Authorization"));
-    		},
-    		function(data, textStatus, xhr) {
-    	
+	req.terminalReferenceNumber = getTerminalRefNumberFromToken();
+	
+	if (req.terminalReferenceNumber == "") {
+		changeScreenLogin();
+		removeStoredData();			
+	} else {
+		sendAjax("POST", 
+			url, 
+			JSON.stringify(req), 
+			function(xhr) {
+				xhr.setRequestHeader('Authorization', getStoredData("Authorization"));
+			},
+			function(data, textStatus, xhr) {
+		
 				var message = "Using service " +xhr.responseJSON.priceDescription
 					+ " for " + xhr.responseJSON.firstName
 					+ " " + xhr.responseJSON.lastName
 					+ " is successful!";
 				showNotification(message, notificationStyles.SUCCESS);
 
-				localStorage.setItem("Authorization", xhr.getResponseHeader("Authorization"));
+				setStoredData("Authorization", xhr.getResponseHeader("Authorization"));
 				changeScreenServicesScanForQr();
-		        	
-		    }, function(xhr) {
+					
+			}, function(xhr) {
 				var message = xhr.responseJSON.errorMessage;
 				showNotification(message, notificationStyles.ERROR);
 				changeScreenServicesScanForQr();
-		    });
+			});
+	}
 }
 
 /**	
@@ -509,20 +652,86 @@ function reAuthorize(){
 	
 	var url = SERVER + "/qrsys/rest/rpi/reauthorize";
 	var req = {};
-    req.terminalReferenceNumber = localStorage.getItem("terminalReferenceNumber");;
-    
-    sendAjax("POST", 
-    		url, 
-    		JSON.stringify(req), 
-    		function(xhr) {
-    			//xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
-    			xhr.setRequestHeader('Authorization', localStorage.getItem("Authorization"));
-    		},
-			null, 
-			function(xhr) {
-				var token = xhr.getResponseHeader("Authorization");
-	    		if (token) {
-	    			localStorage.setItem("Authorization", token);	
-	    		}
-		    });
+    req.terminalReferenceNumber = getTerminalRefNumberFromToken();
+
+	if (req.terminalReferenceNumber == "") {
+		changeScreenLogin();
+		removeStoredData();			
+	} else {
+		sendAjax("POST", 
+				url, 
+				JSON.stringify(req), 
+				function(xhr) {
+					xhr.setRequestHeader('Authorization', getStoredData("Authorization"));
+				},
+				null, 
+				function(xhr) {
+					var token = xhr.getResponseHeader("Authorization");
+					if (token) {
+						setStoredData("Authorization", token);
+					}
+				});
+	}
+}
+
+/**
+ * Method for setting cookies
+ * @param {*} cname
+ * @param {*} cvalue 
+ * @param {*} exdays 
+ */
+function setCookie(cname, cvalue, exdays) {
+	var expires = "";
+
+	if (cvalue != 0 && cvalue != "0") {
+		var d = new Date();
+		d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+		expires = "expires=" + d.toUTCString() + ";";		
+	}
+	document.cookie = cname + "=" + cvalue + ";" + expires + "path=/";
+}
+
+/**
+ * Get the stored cookie with the requested name. It returns empty string
+ * if there's no cookie with the given name
+ * @param {*} cname 
+ */
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
+/**
+ * Removes a requested cookie
+ * @param {*} name 
+ */
+function delete_cookie( name ) {
+	document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+  }
+
+// methods for storing things in the browser
+function setStoredData(name, value) {
+	localStorage.setItem(name, value);
+}
+
+function getStoredData(name) {
+	return localStorage.getItem(name);
+}
+
+function removeStoredData() {
+	localStorage.removeItem("Authorization")
+}
+
+function removeAllStoredDataForThisWebsite() {
+	localStorage.clear();
 }
