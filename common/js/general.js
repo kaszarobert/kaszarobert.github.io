@@ -1,4 +1,0 @@
-function sendAjax(method,url,data,beforeSendCallback,successCallback,errorCallback){if($.isFunction(data)){errorCallback=successCallback;successCallback=data;data=null;}
-return $.ajax({type:method,beforeSend:beforeSendCallback,dataType:'json',contentType:"application/json;charset=utf-8",url:url,data:data,cache:false,timeout:30000,ifModified:false,success:successCallback,error:errorCallback});}
-function getErrorMsg(xhr){var errorMsg;if(xhr.status==0){errorMsg="The server is not responding or is not reachable.";}else{errorMsg=(xhr.statusText!="")?xhr.responseText:xhr.response;}
-console.log(errorMsg);return errorMsg;}
